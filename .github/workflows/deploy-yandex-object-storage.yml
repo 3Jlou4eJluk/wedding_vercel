@@ -45,8 +45,10 @@ jobs:
 
       - name: Upload site
         run: |
-          aws s3 cp index.html "s3://$YC_BUCKET/index.html" \
+          aws s3api put-object \
             --endpoint-url=https://storage.yandexcloud.net \
+            --bucket "$YC_BUCKET" \
+            --key index.html \
+            --body index.html \
             --content-type "text/html; charset=utf-8" \
-            --cache-control "public, max-age=0, must-revalidate" \
-            --no-progress
+            --cache-control "public, max-age=0, must-revalidate"
