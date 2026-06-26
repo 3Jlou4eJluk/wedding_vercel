@@ -26,10 +26,27 @@ jobs:
           python -m pip install --user awscli
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
+      - name: Validate configuration
+        run: |
+          missing=0
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+            echo "::error::YC_ACCESS_KEY_ID is missing"
+            missing=1
+          fi
+          if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "::error::YC_SECRET_ACCESS_KEY is missing"
+            missing=1
+          fi
+          if [ -z "$YC_BUCKET" ]; then
+            echo "::error::YC_BUCKET is missing"
+            missing=1
+          fi
+          exit "$missing"
+
       - name: Upload site
         run: |
-          test -n "$YC_BUCKET"
           aws s3 cp index.html "s3://$YC_BUCKET/index.html" \
             --endpoint-url=https://storage.yandexcloud.net \
             --content-type "text/html; charset=utf-8" \
-            --cache-control "public, max-age=0, must-revalidate"
+            --cache-control "public, max-age=0, must-revalidate" \
+            --no-progress
